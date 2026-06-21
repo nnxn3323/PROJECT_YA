@@ -1,6 +1,6 @@
-import Link from "next/link";
+import { Suspense } from "react";
 import { PageHeader } from "@/components/app/page-header";
-import { Button } from "@/components/ui/button";
+import { LoginForm } from "@/components/auth/login-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function LoginPage() {
@@ -9,25 +9,22 @@ export default function LoginPage() {
       <PageHeader
         label="계정"
         title="로그인"
-        description="학생, 학부모, 관리자, 웹마스터 계정 인증을 연결할 자리입니다."
+        description="계정 권한에 따라 학생, 학부모, 관리자, 웹마스터 화면만 접근할 수 있습니다."
       />
-      <Card>
+      <Card className="mx-auto max-w-md">
         <CardHeader>
-          <CardTitle>데모 이동</CardTitle>
+          <CardTitle>계정으로 계속</CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-2 sm:grid-cols-2">
-          <Button asChild variant="glass">
-            <Link href="/student">학생으로 보기</Link>
-          </Button>
-          <Button asChild variant="glass">
-            <Link href="/parent">학부모로 보기</Link>
-          </Button>
-          <Button asChild variant="glass">
-            <Link href="/admin">관리자로 보기</Link>
-          </Button>
-          <Button asChild variant="glass">
-            <Link href="/master">웹마스터로 보기</Link>
-          </Button>
+        <CardContent className="space-y-4">
+          <Suspense fallback={<p className="text-sm text-muted-foreground">로그인 준비 중</p>}>
+            <LoginForm />
+          </Suspense>
+          <div className="rounded-md bg-white/45 p-3 text-xs leading-5 text-muted-foreground">
+            <p>Seed 기본 비밀번호: academy123!</p>
+            <p>예시: student01@example.com</p>
+            <p>예시: parent01@example.com</p>
+            <p>예시: admin.director@example.com</p>
+          </div>
         </CardContent>
       </Card>
     </main>

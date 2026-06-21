@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/components/app/auth-provider";
 import { BottomNav } from "@/components/app/bottom-nav";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -26,9 +27,11 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={inter.className}>
-        <div className="fixed inset-0 -z-10 bg-[linear-gradient(120deg,rgba(255,255,255,.28),rgba(255,255,255,.08))]" />
-        {children}
-        <BottomNav />
+        <AuthProvider>
+          <div className="fixed inset-0 -z-10 bg-[linear-gradient(120deg,rgba(255,255,255,.28),rgba(255,255,255,.08))]" />
+          {children}
+          <BottomNav />
+        </AuthProvider>
       </body>
     </html>
   );

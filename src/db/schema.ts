@@ -63,6 +63,7 @@ export const users = pgTable("users", {
   id: id(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   name: varchar("name", { length: 100 }).notNull(),
+  passwordHash: text("password_hash"),
   phone: varchar("phone", { length: 40 }),
   role: userRoleEnum("role").notNull(),
   adminLevel: adminLevelEnum("admin_level"),
