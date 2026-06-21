@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { db } from ".";
 import {
   lessons,
@@ -24,7 +25,10 @@ type SeedUserInput = {
 };
 
 async function upsertUser(input: SeedUserInput) {
-  const [user] = await db!
+  const database = db;
+  if (!database) throw new Error("DATABASE_URL is required to seed users");
+
+  const [user] = await database
     .insert(users)
     .values({
       email: input.email,
@@ -76,7 +80,7 @@ async function main() {
     const padded = String(index).padStart(2, "0");
     const user = await upsertUser({
       email: `student${padded}@example.com`,
-      name: `학생 ${padded}`,
+      name: `Student ${padded}`,
       role: "STUDENT",
       passwordHash,
       phone: `010-1000-${String(index).padStart(4, "0")}`
@@ -86,14 +90,14 @@ async function main() {
       .insert(students)
       .values({
         userId: user.id,
-        school: index % 2 === 0 ? "샘플고" : "중앙고",
+        school: index % 2 === 0 ? "Sample High" : "Central High",
         grade: String((index % 3) + 1),
         nextPaymentDue: new Date(`2026-07-${String((index % 20) + 1).padStart(2, "0")}`)
       })
       .onConflictDoUpdate({
         target: students.userId,
         set: {
-          school: index % 2 === 0 ? "샘플고" : "중앙고",
+          school: index % 2 === 0 ? "Sample High" : "Central High",
           grade: String((index % 3) + 1),
           updatedAt: new Date()
         }
@@ -102,13 +106,16 @@ async function main() {
 
     createdStudents.push(student);
 
+    await database.delete(lessons).where(eq(lessons.studentId, student.id));
+    await database.delete(payments).where(eq(payments.studentId, student.id));
+
     await database.insert(lessons).values([
       {
         studentId: student.id,
         dayOfWeek: (index % 5) + 1,
         subject: subjectFor(index),
-        title: `${subjectFor(index)} 정규 수업`,
-        location: index % 2 === 0 ? "A룸" : "온라인",
+        title: `${subjectFor(index)} regular class`,
+        location: index % 2 === 0 ? "Room A" : "Online",
         mode: index % 2 === 0 ? "OFFLINE" : "ONLINE",
         startTime: "18:00",
         endTime: "20:00"
@@ -117,8 +124,8 @@ async function main() {
         studentId: student.id,
         dayOfWeek: ((index + 2) % 5) + 1,
         subject: subjectFor(index + 2),
-        title: "자기주도 학습",
-        location: "스터디존",
+        title: "Self study",
+        location: "Study Zone",
         mode: "OFFLINE",
         startTime: "20:00",
         endTime: "22:00"
@@ -137,7 +144,7 @@ async function main() {
     const padded = String(index).padStart(2, "0");
     const user = await upsertUser({
       email: `parent${padded}@example.com`,
-      name: `학부모 ${padded}`,
+      name: `Parent ${padded}`,
       role: "PARENT",
       passwordHash,
       phone: `010-2000-${String(index).padStart(4, "0")}`
@@ -152,10 +159,7 @@ async function main() {
       })
       .returning();
 
-    const firstChild = createdStudents[index - 1];
-    const secondChild = createdStudents[index + 11];
-
-    for (const child of [firstChild, secondChild]) {
+    for (const child of [createdStudents[index - 1], createdStudents[index + 11]]) {
       if (!child) continue;
       await database
         .insert(parentStudents)
@@ -169,10 +173,10 @@ async function main() {
     name: string;
     adminLevel: AdminLevel;
   }> = [
-    { email: "admin.assistant@example.com", name: "조교 관리자", adminLevel: "ASSISTANT" },
-    { email: "admin.staff@example.com", name: "직원 관리자", adminLevel: "STAFF" },
-    { email: "admin.deputy@example.com", name: "부대표 관리자", adminLevel: "DEPUTY" },
-    { email: "admin.director@example.com", name: "대표 관리자", adminLevel: "DIRECTOR" }
+    { email: "admin.assistant@example.com", name: "Assistant Admin", adminLevel: "ASSISTANT" },
+    { email: "admin.staff@example.com", name: "Staff Admin", adminLevel: "STAFF" },
+    { email: "admin.deputy@example.com", name: "Deputy Admin", adminLevel: "DEPUTY" },
+    { email: "admin.director@example.com", name: "Director Admin", adminLevel: "DIRECTOR" }
   ];
 
   for (const account of adminAccounts) {
@@ -185,7 +189,7 @@ async function main() {
 
   await upsertUser({
     email: "master@example.com",
-    name: "웹마스터",
+    name: "Web Master",
     role: "MASTER",
     passwordHash
   });

@@ -57,7 +57,7 @@ Auth.js v5 호환을 위해 기존 이름도 함께 등록해두면 좋습니다
 
 `AUTH_SECRET`과 `NEXTAUTH_SECRET`은 같은 긴 랜덤 문자열을 넣어도 됩니다. 저장소에는 임시 fallback secret이 들어 있지만, 실제 운영 전에 반드시 Vercel 환경변수로 교체해야 합니다.
 
-Neon 연결 전에도 데모 데이터로 화면은 렌더링됩니다. 실제 로그인과 DB 저장 기능을 쓰려면 `DATABASE_URL`을 등록한 뒤 `npm run db:push`, `npm run db:seed`를 실행해야 합니다.
+Vercel의 `npm run build`는 `db:push`, `db:seed`, `next build` 순서로 실행됩니다. 따라서 `DATABASE_URL`이 Vercel에 등록되어 있으면 배포 과정에서 테이블과 seed 계정이 자동으로 준비됩니다.
 
 ## DB 연결 확인
 
@@ -72,4 +72,4 @@ https://your-vercel-domain.vercel.app/api/health/db
 - `userCount: 0`: DB는 연결됐지만 seed 데이터가 없음
 - `passwordUserCount: 0`: 로그인용 비밀번호 해시 seed가 없음
 
-로그인이 안 될 때는 먼저 `npm run db:push`로 `password_hash` 컬럼을 반영하고, `npm run db:seed`로 계정을 생성하세요.
+로그인이 안 될 때는 먼저 헬스체크의 `userCount`, `passwordUserCount`를 확인하세요. 둘 중 하나가 0이면 `DATABASE_URL`이 등록된 환경에서 `npm run db:push`, `npm run db:seed`를 다시 실행하세요.
