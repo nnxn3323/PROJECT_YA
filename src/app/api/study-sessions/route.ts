@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { and, eq } from "drizzle-orm";
+import { z } from "zod";
 import { db } from "@/db";
 import { studySessions } from "@/db/schema";
+import { databaseUnavailable, requireApiRole } from "@/lib/api-guard";
 
 const studySchema = z.object({
   studentId: z.string().min(1),
@@ -19,28 +20,39 @@ const studySchema = z.object({
   seatLabel: z.string().optional().nullable()
 });
 
+export async function GET(request: Request) {
+  const { response } = await requireApiRole("ADMIN");
+  if (response) return response;
+  if (!db) return databaseUnavailable();
+
+  const { searchParams } = new URL(request.url);
+  const studentId = searchParams.get("studentId");
+  const where = studentId
+    ? and(eq(studySessions.studentId, studentId), eq(studySessions.isActive, true))
+    : eq(studySessions.isActive, true);
+
+  const rows = await db.select().from(studySessions).where(where);
+  return NextResponse.json({ studySessions: rows });
+}
+
 export async function POST(request: Request) {
+  const { session, response } = await requireApiRole("ADMIN");
+  if (response) return response;
+  if (!db) return databaseUnavailable();
+
   const payload = studySchema.parse(await request.json());
 
-  try {
-    if (!db) throw new Error("DATABASE_URL is not configured");
-
-    await db
-      .update(studySessions)
-      .set({ isActive: false, endedAt: new Date() })
-      .where(
-        and(
-          eq(studySessions.studentId, payload.studentId),
-          eq(studySessions.isActive, true)
-        )
-      );
-
-    const [session] = await db.insert(studySessions).values(payload).returning();
-    return NextResponse.json(session, { status: 201 });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "DATABASE_NOT_READY", detail: error instanceof Error ? error.message : "" },
-      { status: 503 }
+  await db
+    .update(studySessions)
+    .set({ isActive: false, endedAt: new Date(), updatedAt: new Date() })
+    .where(
+      and(eq(studySessions.studentId, payload.studentId), eq(studySessions.isActive, true))
     );
-  }
+
+  const [studySession] = await db
+    .insert(studySessions)
+    .values({ ...payload, adminUserId: session!.user.id })
+    .returning();
+
+  return NextResponse.json(studySession, { status: 201 });
 }

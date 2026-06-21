@@ -15,8 +15,7 @@ export function canAccessPath(
 ) {
   if (
     pathname === "/login" ||
-    pathname.startsWith("/api/auth") ||
-    pathname.startsWith("/api/health") ||
+    pathname.startsWith("/api/") ||
     pathname.startsWith("/_next") ||
     pathname === "/favicon.ico"
   ) {
@@ -24,7 +23,6 @@ export function canAccessPath(
   }
 
   if (!role) return false;
-  if (pathname.startsWith("/api/")) return true;
   if (pathname === "/") return true;
 
   if (pathname.startsWith("/student")) return role === "STUDENT";
@@ -39,4 +37,13 @@ export function canAccessPath(
   if (pathname.startsWith("/admin")) return role === "ADMIN";
 
   return false;
+}
+
+export function hasRole(role: UserRole | undefined, expected: UserRole) {
+  return role === expected;
+}
+
+export function canUseAdminRoute(adminLevel: AdminLevel | null | undefined, minimum: 1 | 2 | 3 | 4) {
+  if (!adminLevel) return false;
+  return adminLevelRanks[adminLevel] >= minimum;
 }

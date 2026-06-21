@@ -1,13 +1,16 @@
 import { eachDayOfInterval, format } from "date-fns";
 import { CreditCard } from "lucide-react";
+import { AccountBar } from "@/components/app/account-bar";
 import { PageHeader } from "@/components/app/page-header";
 import { ScheduleBoard } from "@/components/schedule/schedule-board";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getParentWorkspace } from "@/lib/data";
+import { requireRole } from "@/lib/server-guard";
 
 export default async function ParentPage() {
+  await requireRole("PARENT");
   const { student, lessons, mealRequests, payments, tomorrow, until } =
     await getParentWorkspace();
   const days = eachDayOfInterval({ start: tomorrow, end: until });
@@ -17,14 +20,14 @@ export default async function ParentPage() {
 
   return (
     <main className="safe-page">
+      <AccountBar />
       <PageHeader
         label="학부모"
         title={`${student.name} 보호자 페이지`}
-        description="자녀의 시간표를 확인·수정하고 급식 신청과 수강료 결제 상태를 관리합니다."
+        description="자녀 시간표를 확인하고 급식 신청과 결제 상태를 관리합니다."
       />
       <div className="space-y-4">
         <ScheduleBoard studentId={student.id} lessons={lessons} />
-
         <section className="grid gap-4 lg:grid-cols-[1fr_22rem]">
           <Card>
             <CardHeader>
@@ -43,8 +46,8 @@ export default async function ParentPage() {
                   return (
                     <button
                       key={key}
-                      className={`aspect-square rounded-md border border-white/45 text-xs font-semibold ${
-                        active ? "bg-primary text-primary-foreground" : "bg-white/45"
+                      className={`aspect-square rounded-md border border-border text-xs font-semibold ${
+                        active ? "bg-primary text-primary-foreground" : "bg-card/60"
                       }`}
                     >
                       {format(day, "d")}
@@ -54,14 +57,13 @@ export default async function ParentPage() {
               </div>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader>
               <CardTitle>수강료</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {payments.map((payment) => (
-                <div key={payment.id} className="rounded-md bg-white/55 p-3">
+                <div key={payment.id} className="rounded-md bg-muted p-3">
                   <div className="flex items-center justify-between">
                     <strong>{payment.amount.toLocaleString()}원</strong>
                     <Badge>{payment.status}</Badge>
