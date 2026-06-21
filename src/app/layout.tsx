@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/app/auth-provider";
 import { BottomNav } from "@/components/app/bottom-nav";
+import { ThemeScript } from "@/components/app/theme-script";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,10 +26,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    <html lang="ko" suppressHydrationWarning>
       <body className={inter.className}>
+        <ThemeScript />
         <AuthProvider>
-          <div className="fixed inset-0 -z-10 bg-[linear-gradient(120deg,rgba(255,255,255,.28),rgba(255,255,255,.08))]" />
           {children}
           <BottomNav />
         </AuthProvider>

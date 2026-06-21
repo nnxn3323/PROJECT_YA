@@ -64,8 +64,7 @@ export function ScheduleBoard({ studentId, lessons, editable = true }: ScheduleB
         </TabsList>
 
         <TabsContent value="carousel">
-          <div className="relative overflow-hidden rounded-lg border border-white/40 bg-white/20 p-4 backdrop-blur-xl">
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,.5),transparent,rgba(255,255,255,.5))]" />
+          <div className="relative overflow-hidden rounded-lg border border-border bg-card/45 p-4 backdrop-blur-xl">
             <div className="flex snap-x gap-3 overflow-x-auto pb-2">
               {timetableHours.map((hour) => {
                 const hourLessons = byDay.filter(

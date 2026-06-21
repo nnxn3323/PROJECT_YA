@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 54 100% 96%;
+    --background: 48 45% 96%;
     --foreground: 220 18% 12%;
     --card: 0 0% 100%;
     --card-foreground: 220 18% 12%;
@@ -24,27 +24,44 @@
     --radius: 0.5rem;
   }
 
+  .dark {
+    --background: 220 18% 10%;
+    --foreground: 210 30% 96%;
+    --card: 220 16% 15%;
+    --card-foreground: 210 30% 96%;
+    --primary: 54 100% 49%;
+    --primary-foreground: 220 18% 10%;
+    --secondary: 210 18% 20%;
+    --secondary-foreground: 210 30% 96%;
+    --muted: 220 14% 18%;
+    --muted-foreground: 215 14% 72%;
+    --accent: 54 100% 49%;
+    --accent-foreground: 220 18% 10%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 12% 28%;
+    --input: 220 12% 28%;
+    --ring: 54 100% 49%;
+  }
+
   * {
     @apply border-border;
   }
 
   html {
     min-height: 100%;
-    background:
-      radial-gradient(circle at 10% 10%, rgba(252, 229, 0, 0.36), transparent 28%),
-      radial-gradient(circle at 88% 2%, rgba(90, 192, 186, 0.22), transparent 30%),
-      linear-gradient(135deg, #fffdec 0%, #eef7f5 42%, #f8fbff 100%);
+    background: hsl(var(--background));
   }
 
   body {
-    @apply min-h-screen bg-transparent text-foreground antialiased;
+    @apply min-h-screen bg-background text-foreground antialiased;
     letter-spacing: 0;
   }
 }
 
 @layer components {
   .glass-surface {
-    @apply border border-white/45 bg-white/42 shadow-glass backdrop-blur-2xl;
+    @apply border border-border bg-card/75 shadow-glass backdrop-blur-2xl;
   }
 
   .safe-page {

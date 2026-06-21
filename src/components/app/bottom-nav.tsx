@@ -14,6 +14,7 @@ import {
   Wrench
 } from "lucide-react";
 import type { UserRole } from "@/db/schema";
+import { ThemeToggle } from "@/components/app/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const items = [
@@ -31,7 +32,6 @@ const items = [
 }>;
 
 const gridColumns: Record<number, string> = {
-  3: "grid-cols-3",
   4: "grid-cols-4",
   5: "grid-cols-5"
 };
@@ -46,13 +46,13 @@ export function BottomNav() {
   const { data: session, status } = useSession();
   const role = session?.user?.role;
   const navItems = visibleItems(role);
-  const columns = gridColumns[Math.min(navItems.length + 1, 5)] ?? "grid-cols-5";
+  const columns = gridColumns[Math.min(navItems.length + 2, 5)] ?? "grid-cols-5";
   const LogoutIcon = LogOut;
 
   if (status === "loading" || !role) return null;
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full border-t border-white/45 bg-white/55 px-2 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-glass backdrop-blur-2xl md:left-1/2 md:max-w-3xl md:-translate-x-1/2 md:rounded-t-lg md:border">
+    <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full border-t border-border bg-card/85 px-2 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-glass backdrop-blur-2xl md:left-1/2 md:max-w-3xl md:-translate-x-1/2 md:rounded-t-lg md:border">
       <div className={cn("grid gap-1", columns)}>
         {navItems.map((item) => {
           const active =
@@ -72,9 +72,10 @@ export function BottomNav() {
             </Link>
           );
         })}
+        <ThemeToggle />
         <button
           onClick={() => void signOut({ callbackUrl: "/login" })}
-          className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-md text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-white/50"
+          className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-md text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-muted"
         >
           <LogoutIcon className="h-5 w-5" aria-hidden />
           <span>로그아웃</span>

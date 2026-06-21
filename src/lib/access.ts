@@ -16,6 +16,7 @@ export function canAccessPath(
   if (
     pathname === "/login" ||
     pathname.startsWith("/api/auth") ||
+    pathname.startsWith("/api/health") ||
     pathname.startsWith("/_next") ||
     pathname === "/favicon.ico"
   ) {
