@@ -20,12 +20,11 @@ declare module "next-auth" {
   }
 }
 
-declare module "next-auth/jwt" {
-  interface JWT {
-    role: UserRole;
-    adminLevel: AdminLevel | null;
-  }
-}
+type RoleToken = {
+  sub?: string;
+  role?: UserRole;
+  adminLevel?: AdminLevel | null;
+};
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret:
@@ -70,17 +69,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     jwt({ token, user }) {
+      const roleToken = token as RoleToken;
       if (user) {
-        token.role = user.role;
-        token.adminLevel = user.adminLevel;
+        roleToken.role = user.role;
+        roleToken.adminLevel = user.adminLevel;
       }
       return token;
     },
     session({ session, token }) {
+      const roleToken = token as RoleToken;
       if (session.user) {
-        session.user.id = token.sub ?? "";
-        session.user.role = token.role;
-        session.user.adminLevel = token.adminLevel;
+        session.user.id = roleToken.sub ?? "";
+        session.user.role = roleToken.role ?? "STUDENT";
+        session.user.adminLevel = roleToken.adminLevel ?? null;
       }
       return session;
     }
