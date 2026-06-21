@@ -4,74 +4,50 @@ import type { ComponentType } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import {
-  BarChart3,
-  CalendarDays,
-  Home,
-  LogOut,
-  Shield,
-  UserRound,
-  Wrench
-} from "lucide-react";
+import { CalendarDays, LogOut, Shield, UserRound, Wrench } from "lucide-react";
 import type { UserRole } from "@/db/schema";
 import { ThemeToggle } from "@/components/app/theme-toggle";
 import { cn } from "@/lib/utils";
 
-const items = [
-  { href: "/", label: "홈", icon: Home, roles: ["STUDENT", "PARENT", "ADMIN", "MASTER"] },
-  { href: "/student", label: "학생", icon: CalendarDays, roles: ["STUDENT"] },
-  { href: "/parent", label: "학부모", icon: UserRound, roles: ["PARENT"] },
-  { href: "/admin", label: "관리", icon: Shield, roles: ["ADMIN"] },
-  { href: "/master", label: "마스터", icon: Wrench, roles: ["MASTER"] },
-  { href: "/public", label: "게시", icon: BarChart3, roles: ["STUDENT", "PARENT", "ADMIN", "MASTER"] }
-] satisfies Array<{
-  href: string;
-  label: string;
-  icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
-  roles: UserRole[];
-}>;
-
-const gridColumns: Record<number, string> = {
-  4: "grid-cols-4",
-  5: "grid-cols-5"
-};
-
-function visibleItems(role?: UserRole) {
-  if (!role) return [];
-  return items.filter((item) => item.roles.includes(role));
-}
+const roleItems = {
+  STUDENT: { href: "/student", label: "학생", icon: CalendarDays },
+  PARENT: { href: "/parent", label: "학부모", icon: UserRound },
+  ADMIN: { href: "/admin", label: "관리", icon: Shield },
+  MASTER: { href: "/master", label: "마스터", icon: Wrench }
+} satisfies Record<
+  UserRole,
+  {
+    href: string;
+    label: string;
+    icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+  }
+>;
 
 export function BottomNav() {
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const role = session?.user?.role;
-  const navItems = visibleItems(role);
-  const columns = gridColumns[Math.min(navItems.length + 2, 5)] ?? "grid-cols-5";
   const LogoutIcon = LogOut;
 
   if (status === "loading" || !role) return null;
 
+  const item = roleItems[role];
+  const Icon = item.icon;
+  const active = pathname.startsWith(item.href);
+
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full border-t border-border bg-card/85 px-2 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-glass backdrop-blur-2xl md:left-1/2 md:max-w-3xl md:-translate-x-1/2 md:rounded-t-lg md:border">
-      <div className={cn("grid gap-1", columns)}>
-        {navItems.map((item) => {
-          const active =
-            item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex min-h-12 flex-col items-center justify-center gap-1 rounded-md text-[11px] font-semibold text-muted-foreground transition-colors",
-                active && "bg-primary text-primary-foreground"
-              )}
-            >
-              <Icon className="h-5 w-5" aria-hidden />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
+    <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full border-t border-border bg-card/85 px-2 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-glass backdrop-blur-2xl md:left-1/2 md:max-w-md md:-translate-x-1/2 md:rounded-t-lg md:border">
+      <div className="grid grid-cols-3 gap-1">
+        <Link
+          href={item.href}
+          className={cn(
+            "flex min-h-12 flex-col items-center justify-center gap-1 rounded-md text-[11px] font-semibold text-muted-foreground transition-colors",
+            active && "bg-primary text-primary-foreground"
+          )}
+        >
+          <Icon className="h-5 w-5" aria-hidden />
+          <span>{item.label}</span>
+        </Link>
         <ThemeToggle />
         <button
           onClick={() => void signOut({ callbackUrl: "/login" })}

@@ -11,9 +11,13 @@ export default auth((request) => {
     return NextResponse.redirect(new URL(roleHome[role], request.url));
   }
 
+  if (pathname === "/" && role) {
+    return NextResponse.redirect(new URL(roleHome[role], request.url));
+  }
+
   if (!canAccessPath(pathname, role, adminLevel)) {
     const url = new URL(role ? roleHome[role] : "/login", request.url);
-    url.searchParams.set("callbackUrl", pathname);
+    if (!role) url.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(url);
   }
 
