@@ -14,6 +14,12 @@ function hexToBytes(hex: string) {
   return bytes;
 }
 
+function toArrayBuffer(bytes: Uint8Array) {
+  const buffer = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(buffer).set(bytes);
+  return buffer;
+}
+
 async function digest(password: string, salt: Uint8Array) {
   const encoder = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey(
@@ -27,7 +33,7 @@ async function digest(password: string, salt: Uint8Array) {
     {
       name: "PBKDF2",
       hash: "SHA-256",
-      salt,
+      salt: toArrayBuffer(salt),
       iterations
     },
     keyMaterial,
