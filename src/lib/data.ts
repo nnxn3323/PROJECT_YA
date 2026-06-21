@@ -15,8 +15,9 @@ import type { LessonView } from "@/types/schedule";
 export async function getStudentWorkspace() {
   try {
     if (!db) throw new Error("DATABASE_URL is not configured");
+    const database = db;
 
-    const rows = await db
+    const rows = await database
       .select({
         id: students.id,
         school: students.school,
@@ -34,7 +35,7 @@ export async function getStudentWorkspace() {
       return { student: demoStudent, lessons: demoLessons };
     }
 
-    const studentLessons = await db
+    const studentLessons = await database
       .select()
       .from(lessons)
       .where(eq(lessons.studentId, student.id))
@@ -63,9 +64,10 @@ export async function getParentWorkspace() {
 
   try {
     if (!db) throw new Error("DATABASE_URL is not configured");
+    const database = db;
 
     const [mealRequests, payments] = await Promise.all([
-      db
+      database
         .select()
         .from(mealRequestsTable)
         .where(
@@ -75,7 +77,7 @@ export async function getParentWorkspace() {
             lte(mealRequestsTable.date, until)
           )
         ),
-      db
+      database
         .select()
         .from(paymentsTable)
         .where(eq(paymentsTable.studentId, workspace.student.id))
@@ -108,8 +110,9 @@ export async function getParentWorkspace() {
 export async function getAdminWorkspace() {
   try {
     if (!db) throw new Error("DATABASE_URL is not configured");
+    const database = db;
 
-    const studentRows = await db
+    const studentRows = await database
       .select({
         id: students.id,
         school: students.school,
@@ -127,8 +130,8 @@ export async function getAdminWorkspace() {
     return Promise.all(
       studentRows.map(async (student) => {
         const [studentLessons, activeStudyRows] = await Promise.all([
-          db.select().from(lessons).where(eq(lessons.studentId, student.id)),
-          db
+          database.select().from(lessons).where(eq(lessons.studentId, student.id)),
+          database
             .select()
             .from(studySessions)
             .where(
